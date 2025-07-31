@@ -164,6 +164,15 @@ function saveCityToRecent(city) {
   updateRecentCitiesDropdown();
 }
 
+// Temperature conversion functions
+function celsiusToFahrenheit(c) {
+    return (c * 9/5) + 32;
+  }
+  
+  function celsiusToKelvin(c) {
+    return c + 273.15;
+  }
+  
 // Get recent cities from local storage
 function getRecentCities() {
   const citiesJson = localStorage.getItem('recentCities');
@@ -304,14 +313,6 @@ function getCurrentLocationWeather() {
   );
 }
 
-// Temperature conversion functions
-function celsiusToFahrenheit(c) {
-  return (c * 9/5) + 32;
-}
-
-function celsiusToKelvin(c) {
-  return c + 273.15;
-}
 
 // Update temperature display based on current unit 
 function updateTemperatureDisplay() {
