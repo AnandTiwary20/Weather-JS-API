@@ -1,159 +1,167 @@
-// API Configuration
-const API_KEY = 'YOUR_OPENWEATHER_API_KEY'; // Replace with your OpenWeatherMap API key
-const BASE_URL = 'https://api.openweathermap.org/data/2.5';
+// Get your API key from OpenWeatherMap and paste it here
+const API_KEY = 'YOUR_OPENWEATHER_API_KEY';
+const API_URL = 'https://api.openweathermap.org/data/2.5';
 
-// DOM Elements
-const locationInput = document.getElementById('location-input');
+// Grab all the DOM elements we'll need
+const searchInput = document.getElementById('location-input');
 const searchBtn = document.getElementById('search-btn');
 const locationBtn = document.getElementById('location-btn');
-const cityElement = document.getElementById('city');
-const dateElement = document.getElementById('date');
-const tempElement = document.getElementById('temp');
-const weatherIcon = document.getElementById('weather-icon');
-const descriptionElement = document.getElementById('description');
-const windElement = document.getElementById('wind');
-const humidityElement = document.getElementById('humidity');
-const pressureElement = document.getElementById('pressure');
-const forecastContainer = document.getElementById('forecast');
 
-// Initialize the app
+// Current weather elements
+const cityName = document.getElementById('city');
+const currentDate = document.getElementById('date');
+const temperature = document.getElementById('temp');
+const weatherImg = document.getElementById('weather-icon');
+const weatherDesc = document.getElementById('description');
+
+// Weather details
+const windSpeed = document.getElementById('wind');
+const humidity = document.getElementById('humidity');
+const pressure = document.getElementById('pressure');
+
+// Forecast container
+const forecastList = document.getElementById('forecast');
+
+// Set up the app when the page loads
 function init() {
-    // Set current date
-    updateDate();
-    
-    // Event Listeners
-    searchBtn.addEventListener('click', () => {
-        const location = locationInput.value.trim();
-        if (location) {
-            getWeatherByCity(location);
-        }
-    });
-    
-    locationBtn.addEventListener('click', getWeatherByLocation);
-    
-    // Load default city (can be changed)
-    getWeatherByCity('New York');
+  // Show today's date
+  updateDate();
+  
+  // Set up event listeners
+  searchBtn.addEventListener('click', handleSearch);
+  searchInput.addEventListener('keypress', (e) => {
+    if (e.key === 'Enter') handleSearch();
+  });
+  
+  locationBtn.addEventListener('click', getCurrentLocationWeather);
+  
+  // Load default city weather
+  fetchWeather('New York');
 }
 
-// Update current date
+// Show today's date in a nice format
 function updateDate() {
-    const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
-    const today = new Date();
-    dateElement.textContent = today.toLocaleDateString('en-US', options);
+  const options = { weekday: 'long', year: 'numeric', month: 'short', day: 'numeric' };
+  currentDate.textContent = new Date().toLocaleDateString('en-US', options);
 }
 
-// Get weather by city name
-async function getWeatherByCity(city) {
-    try {
+// Handle search button click
+function handleSearch() {
+  const location = searchInput.value.trim();
+  if (location) {
+    fetchWeather(location);
+  }
+}
+
+// Get weather for a city
+async function fetchWeather(city) {
+  try {
+    // Show loading state
+    cityName.textContent = 'Loading...';
+    
+    // Get current weather
+    const currentRes = await fetch(`${API_URL}/weather?q=${city}&units=metric&appid=${API_KEY}`);
+    if (!currentRes.ok) throw new Error('City not found');
+    
+    const currentData = await currentRes.json();
+    updateCurrentWeather(currentData);
+    
+    // Get forecast
+    const forecastRes = await fetch(`${API_URL}/forecast?q=${city}&units=metric&appid=${API_KEY}`);
+    const forecastData = await forecastRes.json();
+    showForecast(forecastData);
+    
+  } catch (err) {
+    alert('Oops! Could not get weather data. Please try again.');
+    console.error('Error:', err);
+  }
+}
+
+// Update the UI with current weather data
+function updateCurrentWeather(data) {
+  cityName.textContent = `${data.name}, ${data.sys.country}`;
+  temperature.textContent = Math.round(data.main.temp);
+  weatherDesc.textContent = data.weather[0].description;
+  weatherImg.src = `https://openweathermap.org/img/wn/${data.weather[0].icon}@2x.png`;
+  
+  // Update weather details
+  windSpeed.textContent = `${Math.round(data.wind.speed * 3.6)} km/h`;
+  humidity.textContent = `${data.main.humidity}%`;
+  pressure.textContent = `${data.main.pressure} hPa`;
+  
+  // Update search input
+  searchInput.value = data.name;
+}
+
+// Show 5-day forecast
+function showForecast(data) {
+  // Clear previous forecast
+  forecastList.innerHTML = '';
+  
+  // Get one forecast per day (around noon)
+  const dailyForecast = [];
+  const today = new Date().toDateString();
+  
+  data.list.forEach(item => {
+    const date = new Date(item.dt * 1000);
+    if (date.toDateString() !== today && date.getHours() === 12 && dailyForecast.length < 5) {
+      dailyForecast.push(item);
+    }
+  });
+  
+  // Create forecast cards
+  dailyForecast.forEach(day => {
+    const date = new Date(day.dt * 1000);
+    const dayName = date.toLocaleDateString('en-US', { weekday: 'short' });
+    const temp = Math.round(day.main.temp);
+    const icon = day.weather[0].icon;
+    
+    const card = `
+      <div class="bg-white p-4 rounded-xl shadow text-center">
+        <p class="font-medium">${dayName}</p>
+        <img src="https://openweathermap.org/img/wn/${icon}@2x.png" alt="weather" class="mx-auto w-16 h-16">
+        <p class="text-2xl font-bold">${temp}°</p>
+        <p class="text-sm text-gray-500">${day.weather[0].description}</p>
+      </div>
+    `;
+    
+    forecastList.insertAdjacentHTML('beforeend', card);
+  });
+}
+
+// Get weather for current location
+function getCurrentLocationWeather() {
+  if (!navigator.geolocation) {
+    alert("Your browser doesn't support geolocation. Please enter a city name.");
+    return;
+  }
+  
+  navigator.geolocation.getCurrentPosition(
+    async (position) => {
+      try {
+        const { latitude, longitude } = position.coords;
+        
         // Get current weather
-        const currentWeatherUrl = `${BASE_URL}/weather?q=${city}&units=metric&appid=${API_KEY}`;
-        const currentResponse = await fetch(currentWeatherUrl);
-        
-        if (!currentResponse.ok) {
-            throw new Error('City not found');
-        }
-        
-        const currentData = await currentResponse.json();
+        const currentRes = await fetch(`${API_URL}/weather?lat=${latitude}&lon=${longitude}&units=metric&appid=${API_KEY}`);
+        const currentData = await currentRes.json();
         updateCurrentWeather(currentData);
         
         // Get forecast
-        const forecastUrl = `${BASE_URL}/forecast?q=${city}&units=metric&appid=${API_KEY}`;
-        const forecastResponse = await fetch(forecastUrl);
-        const forecastData = await forecastResponse.json();
-        updateForecast(forecastData);
+        const forecastRes = await fetch(`${API_URL}/forecast?lat=${latitude}&lon=${longitude}&units=metric&appid=${API_KEY}`);
+        const forecastData = await forecastRes.json();
+        showForecast(forecastData);
         
-    } catch (error) {
-        alert('Error fetching weather data. Please try again.');
-        console.error('Error:', error);
+      } catch (err) {
+        alert('Oops! Could not get weather data for your location.');
+        console.error('Error:', err);
+      }
+    },
+    (error) => {
+      alert("Couldn't get your location. Please allow location access or enter a city name.");
+      console.error('Geolocation error:', error);
     }
+  );
 }
 
-// Get weather by geolocation
-function getWeatherByLocation() {
-    if (navigator.geolocation) {
-        navigator.geolocation.getCurrentPosition(
-            async (position) => {
-                const { latitude, longitude } = position.coords;
-                try {
-                    // Get current weather
-                    const currentWeatherUrl = `${BASE_URL}/weather?lat=${latitude}&lon=${longitude}&units=metric&appid=${API_KEY}`;
-                    const currentResponse = await fetch(currentWeatherUrl);
-                    const currentData = await currentResponse.json();
-                    updateCurrentWeather(currentData);
-                    
-                    // Get forecast
-                    const forecastUrl = `${BASE_URL}/forecast?lat=${latitude}&lon=${longitude}&units=metric&appid=${API_KEY}`;
-                    const forecastResponse = await fetch(forecastUrl);
-                    const forecastData = await forecastResponse.json();
-                    updateForecast(forecastData);
-                    
-                } catch (error) {
-                    alert('Error fetching weather data. Please try again.');
-                    console.error('Error:', error);
-                }
-            },
-            (error) => {
-                alert('Unable to retrieve your location. Please enter a city name.');
-                console.error('Geolocation error:', error);
-            }
-        );
-    } else {
-        alert('Geolocation is not supported by your browser. Please enter a city name.');
-    }
-}
-
-// Update current weather UI
-function updateCurrentWeather(data) {
-    cityElement.textContent = `${data.name}, ${data.sys.country}`;
-    tempElement.textContent = Math.round(data.main.temp);
-    descriptionElement.textContent = data.weather[0].description;
-    weatherIcon.src = `https://openweathermap.org/img/wn/${data.weather[0].icon}@2x.png`;
-    windElement.textContent = `${Math.round(data.wind.speed * 3.6)} km/h`; // Convert m/s to km/h
-    humidityElement.textContent = `${data.main.humidity}%`;
-    pressureElement.textContent = `${data.main.pressure} hPa`;
-    
-    // Update input field
-    locationInput.value = data.name;
-}
-
-// Update forecast UI
-function updateForecast(data) {
-    // Clear previous forecast
-    forecastContainer.innerHTML = '';
-    
-    // Get daily forecast (one per day)
-    const dailyForecast = [];
-    const today = new Date().toDateString();
-    
-    data.list.forEach(item => {
-        const date = new Date(item.dt * 1000).toDateString();
-        const time = new Date(item.dt * 1000).getHours();
-        
-        // Only include one forecast per day (around noon)
-        if (date !== today && time === 12 && dailyForecast.length < 5) {
-            dailyForecast.push(item);
-        }
-    });
-    
-    // Create forecast cards
-    dailyForecast.forEach(item => {
-        const date = new Date(item.dt * 1000);
-        const day = date.toLocaleDateString('en-US', { weekday: 'short' });
-        const temp = Math.round(item.main.temp);
-        const icon = item.weather[0].icon;
-        
-        const forecastCard = document.createElement('div');
-        forecastCard.className = 'bg-white rounded-xl p-4 shadow-md text-center';
-        forecastCard.innerHTML = `
-            <p class="font-medium text-gray-700">${day}</p>
-            <img src="https://openweathermap.org/img/wn/${icon}@2x.png" alt="weather icon" class="mx-auto w-16 h-16">
-            <p class="text-2xl font-bold">${temp}°</p>
-            <p class="text-sm text-gray-500 capitalize">${item.weather[0].description}</p>
-        `;
-        
-        forecastContainer.appendChild(forecastCard);
-    });
-}
-
-// Initialize the app when the DOM is fully loaded
+// Start the app when the page loads
 document.addEventListener('DOMContentLoaded', init);
