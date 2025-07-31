@@ -77,20 +77,29 @@ function init() {
 }
 
 function setupRecentCitiesDropdown() {
-  // Show dropdown when input is focused
-  searchInput.addEventListener('focus', () => {
-    updateRecentCitiesDropdown();
+  // Toggle dropdown on input click
+  searchInput.addEventListener('click', (e) => {
+    e.stopPropagation();
+    const cities = getRecentCities();
+    if (cities.length > 0) {
+      recentCitiesDropdown.classList.toggle('hidden');
+    }
   });
   
   // Hide dropdown when clicking outside
-  document.addEventListener('click', (e) => {
-    if (!searchInput.contains(e.target) && !recentCitiesDropdown.contains(e.target)) {
+  document.addEventListener('click', () => {
+    if (!recentCitiesDropdown.classList.contains('hidden')) {
       recentCitiesDropdown.classList.add('hidden');
     }
   });
+  
+  // Prevent dropdown from closing when clicking inside it
+  recentCitiesDropdown.addEventListener('click', (e) => {
+    e.stopPropagation();
+  });
 }
 
-// Updating recent cities using DropdOWN
+// Updating recent cities using Dropdown
 function updateRecentCitiesDropdown() {
   const cities = getRecentCities();
   
@@ -105,15 +114,30 @@ function updateRecentCitiesDropdown() {
   // Add each city to the dropdown
   cities.forEach(city => {
     const cityElement = document.createElement('div');
-    cityElement.className = 'px-4 py-2 hover:bg-gray-100 cursor-pointer';
-    cityElement.textContent = city;
-    cityElement.addEventListener('click', () => {
+    cityElement.className = 'px-4 py-2 hover:bg-blue-50 cursor-pointer flex items-center';
+    
+    // Add location icon
+    const icon = document.createElement('i');
+    icon.className = 'fas fa-map-marker-alt text-blue-500 mr-2';
+    
+    cityElement.appendChild(icon);
+    cityElement.appendChild(document.createTextNode(city));
+    
+    cityElement.addEventListener('click', (e) => {
+      e.stopPropagation();
       searchInput.value = city;
       handleSearch();
       recentCitiesDropdown.classList.add('hidden');
     });
+    
     recentCitiesList.appendChild(cityElement);
   });
+  
+  // Position the dropdown below the input
+  const inputRect = searchInput.getBoundingClientRect();
+  recentCitiesDropdown.style.width = `${inputRect.width}px`;
+  recentCitiesDropdown.style.top = `${inputRect.bottom + window.scrollY}px`;
+  recentCitiesDropdown.style.left = `${inputRect.left + window.scrollX}px`;
   
   recentCitiesDropdown.classList.remove('hidden');
 }
@@ -289,7 +313,7 @@ function celsiusToKelvin(c) {
   return c + 273.15;
 }
 
-// Update temperature display based on current unit
+// Update temperature display based on current unit 
 function updateTemperatureDisplay() {
   if (!currentWeatherData) return;
   
@@ -329,24 +353,24 @@ function setTemperatureUnit(unit) {
 
 // Update unit toggle buttons
 function updateUnitButtons() {
-  // Remove all active classes
-  unitCelsius.classList.remove('bg-blue-600', 'text-white');
-  unitFahrenheit.classList.remove('bg-blue-600', 'text-white');
-  unitKelvin.classList.remove('bg-blue-600', 'text-white');
-  
-  // Add active class to current unit
-  switch(currentUnit) {
-    case 'fahrenheit':
-      unitFahrenheit.classList.add('bg-blue-600', 'text-white');
-      break;
-    case 'kelvin':
-      unitKelvin.classList.add('bg-blue-600', 'text-white');
-      break;
-    default: // celsius
-      unitCelsius.classList.add('bg-blue-600', 'text-white');
+    // Remove all active classes
+    unitCelsius.classList.remove('bg-blue-600', 'text-white');
+    unitFahrenheit.classList.remove('bg-blue-600', 'text-white');
+    unitKelvin.classList.remove('bg-blue-600', 'text-white');
+    
+    // Add active class to current unit
+    switch(currentUnit) {
+      case 'fahrenheit':
+        unitFahrenheit.classList.add('bg-blue-600', 'text-white');
+        break;
+      case 'kelvin':
+        unitKelvin.classList.add('bg-blue-600', 'text-white');
+        break;
+      default: // celsius
+        unitCelsius.classList.add('bg-blue-600', 'text-white');
+    }
   }
-}
-
+  
 // Load saved temperature unit preference
 function loadTemperaturePreference() {
   const savedUnit = localStorage.getItem('temperatureUnit');
