@@ -317,7 +317,7 @@ function getCurrentLocationWeather() {
 }
 
 
-// Update temperature display based on current unit 
+// Update temperature display based on current unit
 function updateTemperatureDisplay() {
   if (!currentWeatherData) return;
   
