@@ -1,11 +1,13 @@
-// Get your API key from OpenWeatherMap and paste it here
-const API_KEY = 'YOUR_OPENWEATHER_API_KEY';
+//API KEY PASTED HERE
+const API_KEY = '1f6bc7de25ff530f7c7cbbcffeaf7bf8';
 const API_URL = 'https://api.openweathermap.org/data/2.5';
 
-// Grab all the DOM elements we'll need
+//=
 const searchInput = document.getElementById('location-input');
 const searchBtn = document.getElementById('search-btn');
 const locationBtn = document.getElementById('location-btn');
+const recentCitiesDropdown = document.getElementById('recent-cities-dropdown');
+const recentCitiesList = document.getElementById('recent-cities-list');
 
 // Current weather elements
 const cityName = document.getElementById('city');
@@ -22,12 +24,8 @@ const pressure = document.getElementById('pressure');
 // Forecast container
 const forecastList = document.getElementById('forecast');
 
-// Set up the app when the page loads
 function init() {
-  // Show today's date
-  updateDate();
-  
-  // Set up event listeners
+    updateDate();
   searchBtn.addEventListener('click', handleSearch);
   searchInput.addEventListener('keypress', (e) => {
     if (e.key === 'Enter') handleSearch();
@@ -35,8 +33,82 @@ function init() {
   
   locationBtn.addEventListener('click', getCurrentLocationWeather);
   
+  
+  setupRecentCitiesDropdown();
+  
   // Load default city weather
-  fetchWeather('New York');
+  fetchWeather('Delhi');
+}
+
+// Set up the recent cities dropdown
+function setupRecentCitiesDropdown() {
+  // Show dropdown when input is focused
+  searchInput.addEventListener('focus', () => {
+    updateRecentCitiesDropdown();
+  });
+  
+  // Hide dropdown when clicking outside
+  document.addEventListener('click', (e) => {
+    if (!searchInput.contains(e.target) && !recentCitiesDropdown.contains(e.target)) {
+      recentCitiesDropdown.classList.add('hidden');
+    }
+  });
+}
+
+// Update the recent cities dropdown with current data
+function updateRecentCitiesDropdown() {
+  const cities = getRecentCities();
+  
+  if (cities.length === 0) {
+    recentCitiesDropdown.classList.add('hidden');
+    return;
+  }
+  
+  // Clear previous list
+  recentCitiesList.innerHTML = '';
+  
+  // Add each city to the dropdown
+  cities.forEach(city => {
+    const cityElement = document.createElement('div');
+    cityElement.className = 'px-4 py-2 hover:bg-gray-100 cursor-pointer';
+    cityElement.textContent = city;
+    cityElement.addEventListener('click', () => {
+      searchInput.value = city;
+      handleSearch();
+      recentCitiesDropdown.classList.add('hidden');
+    });
+    recentCitiesList.appendChild(cityElement);
+  });
+  
+  recentCitiesDropdown.classList.remove('hidden');
+}
+
+// Save a city to recent searches
+function saveCityToRecent(city) {
+  let cities = getRecentCities();
+  
+  // Remove if already exists (to avoid duplicates)
+  cities = cities.filter(c => c.toLowerCase() !== city.toLowerCase());
+  
+  // Add to the beginning of the array
+  cities.unshift(city);
+  
+  // Keep only the 5 most recent
+  if (cities.length > 5) {
+    cities = cities.slice(0, 5);
+  }
+  
+  // Save to local storage
+  localStorage.setItem('recentCities', JSON.stringify(cities));
+  
+  // Update the dropdown
+  updateRecentCitiesDropdown();
+}
+
+// Get recent cities from local storage
+function getRecentCities() {
+  const citiesJson = localStorage.getItem('recentCities');
+  return citiesJson ? JSON.parse(citiesJson) : [];
 }
 
 // Show today's date in a nice format
@@ -49,6 +121,7 @@ function updateDate() {
 function handleSearch() {
   const location = searchInput.value.trim();
   if (location) {
+    saveCityToRecent(location);
     fetchWeather(location);
   }
 }
