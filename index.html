@@ -3,9 +3,103 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>Weather Forecast</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        body {
+            background-color: #f8f9fa;
+        }
+        .weather-card {
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(10px);
+        }
+    </style>
 </head>
-<body>
-    <p> hi my name is anand </p>
+<body class="min-h-screen bg-gradient-to-br from-blue-50 to-blue-100 p-4 md:p-8">
+    <div class="container mx-auto max-w-5xl">
+        <header class="text-center mb-8">
+            <h1 class="text-4xl font-bold text-blue-600 mb-6">Weather Forecast</h1>
+            <div class="flex justify-center gap-2 max-w-md mx-auto">
+                <input type="text" 
+                       id="location-input" 
+                       placeholder="Enter city name" 
+                       class="flex-1 px-4 py-2 rounded-l-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                <button id="search-btn" 
+                        class="bg-blue-600 text-white px-4 py-2 hover:bg-blue-700 transition-colors">
+                    <i class="fas fa-search"></i>
+                </button>
+                <button id="location-btn" 
+                        title="Use current location"
+                        class="bg-blue-500 text-white px-4 py-2 rounded-r-lg hover:bg-blue-600 transition-colors">
+                    <i class="fas fa-location-arrow"></i>
+                </button>
+            </div>
+        </header>
+
+        <main class="space-y-8">
+            <!-- Current Weather -->
+            <section class="current-weather">
+                <div class="weather-card rounded-xl shadow-xl p-6 max-w-2xl mx-auto">
+                    <div class="location text-center mb-6">
+                        <h2 id="city" class="text-3xl font-bold text-gray-800">--</h2>
+                        <p id="date" class="text-gray-600">-- --, ----</p>
+                    </div>
+                    <div class="weather-main flex flex-col md:flex-row items-center justify-between mb-6">
+                        <div class="temperature flex items-center mb-4 md:mb-0">
+                            <span id="temp" class="text-6xl font-bold text-gray-800">--</span>
+                            <span class="unit text-2xl text-gray-600 ml-1">°C</span>
+                        </div>
+                        <div class="weather-icon flex flex-col items-center">
+                            <img id="weather-icon" 
+                                 src="https://openweathermap.org/img/wn/01d@2x.png" 
+                                 alt="weather icon" 
+                                 class="w-24 h-24">
+                            <p id="description" class="text-lg text-gray-700 capitalize">--</p>
+                        </div>
+                    </div>
+                    <div class="weather-details grid grid-cols-1 sm:grid-cols-3 gap-4 mt-6">
+                        <div class="detail flex items-center p-3 bg-blue-50 rounded-lg">
+                            <i class="fas fa-wind text-blue-600 text-2xl mr-3"></i>
+                            <div>
+                                <p class="text-sm text-gray-500">Wind</p>
+                                <p id="wind" class="font-medium">-- km/h</p>
+                            </div>
+                        </div>
+                        <div class="detail flex items-center p-3 bg-blue-50 rounded-lg">
+                            <i class="fas fa-tint text-blue-600 text-2xl mr-3"></i>
+                            <div>
+                                <p class="text-sm text-gray-500">Humidity</p>
+                                <p id="humidity" class="font-medium">--%</p>
+                            </div>
+                        </div>
+                        <div class="detail flex items-center p-3 bg-blue-50 rounded-lg">
+                            <i class="fas fa-compress-alt text-blue-600 text-2xl mr-3"></i>
+                            <div>
+                                <p class="text-sm text-gray-500">Pressure</p>
+                                <p id="pressure" class="font-medium">-- hPa</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 5-Day Forecast -->
+            <section class="forecast">
+                <h3 class="text-2xl font-semibold text-gray-800 mb-4 text-center">5-Day Forecast</h3>
+                <div class="forecast-container grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4" id="forecast">
+                    <!-- Forecast cards will be inserted here by JavaScript -->
+                </div>
+            </section>
+        </main>
+
+        <footer class="mt-12 text-center text-gray-500 text-sm">
+            <p>Weather data provided by <a href="https://openweathermap.org/" target="_blank" class="text-blue-600 hover:underline">OpenWeatherMap</a></p>
+        </footer>
+    </div>
+
+    <script src="index.js"></script>
 </body>
 </html>
