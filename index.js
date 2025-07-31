@@ -164,15 +164,6 @@ function saveCityToRecent(city) {
   updateRecentCitiesDropdown();
 }
 
-// Temperature conversion functions
-function celsiusToFahrenheit(c) {
-    return (c * 9/5) + 32;
-  }
-  
-  function celsiusToKelvin(c) {
-    return c + 273.15;
-  }
-  
 // Get recent cities from local storage
 function getRecentCities() {
   const citiesJson = localStorage.getItem('recentCities');
@@ -213,10 +204,22 @@ async function fetchWeather(city) {
     showForecast(forecastData);
     
   } catch (err) {
-    alert('Oops! Could not get weather data. Please try again.');
+    alert('Oops! Could not get weather data. Check the correct city name .');
     console.error('Error:', err);
   }
 }
+
+
+
+// Temperature conversion functions to convert and add more functionalities 
+function celsiusToFahrenheit(c) {
+    return (c * 9/5) + 32;
+  }
+  
+  function celsiusToKelvin(c) {
+    return c + 273.15;
+  }
+  
 
 // Update the UI with current weather data
 function updateCurrentWeather(data) {
