@@ -1,13 +1,27 @@
+//Tried My best to Explain the codes and calling of the required and most important features of the code through comments .
+
+
+
 //API KEY PASTED HERE
 const API_KEY = '1f6bc7de25ff530f7c7cbbcffeaf7bf8';
 const API_URL = 'https://api.openweathermap.org/data/2.5';
 
-//=
+// DOM Elements
 const searchInput = document.getElementById('location-input');
 const searchBtn = document.getElementById('search-btn');
 const locationBtn = document.getElementById('location-btn');
 const recentCitiesDropdown = document.getElementById('recent-cities-dropdown');
 const recentCitiesList = document.getElementById('recent-cities-list');
+const quickLocationBtns = document.querySelectorAll('.quick-location-btn');
+
+// Unit conversion elements
+const unitCelsius = document.getElementById('unit-celsius');
+const unitFahrenheit = document.getElementById('unit-fahrenheit');
+const unitKelvin = document.getElementById('unit-kelvin');
+
+// Current unit state (default: Celsius)
+let currentUnit = 'celsius';
+let currentWeatherData = null;
 
 // Current weather elements
 const cityName = document.getElementById('city');
@@ -25,22 +39,43 @@ const pressure = document.getElementById('pressure');
 const forecastList = document.getElementById('forecast');
 
 function init() {
-    updateDate();
+  updateDate();
+  
+  // Search functionality
   searchBtn.addEventListener('click', handleSearch);
   searchInput.addEventListener('keypress', (e) => {
     if (e.key === 'Enter') handleSearch();
   });
   
+  // Location button
   locationBtn.addEventListener('click', getCurrentLocationWeather);
   
+  // Quick location buttons
+  quickLocationBtns.forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      const city = e.target.getAttribute('data-city') || e.target.closest('.quick-location-btn').getAttribute('data-city');
+      if (city) {
+        searchInput.value = city;
+        handleSearch();
+      }
+    });
+  });
   
+  // Unit conversion
+  unitCelsius.addEventListener('click', () => setTemperatureUnit('celsius'));
+  unitFahrenheit.addEventListener('click', () => setTemperatureUnit('fahrenheit'));
+  unitKelvin.addEventListener('click', () => setTemperatureUnit('kelvin'));
+  
+  // Setup recent cities dropdown
   setupRecentCitiesDropdown();
   
   // Load default city weather
   fetchWeather('Delhi');
+  
+  // Highlight current unit
+  updateUnitButtons();
 }
 
-// Set up the recent cities dropdown
 function setupRecentCitiesDropdown() {
   // Show dropdown when input is focused
   searchInput.addEventListener('focus', () => {
@@ -55,7 +90,7 @@ function setupRecentCitiesDropdown() {
   });
 }
 
-// Update the recent cities dropdown with current data
+// Updating recent cities using DropdOWN
 function updateRecentCitiesDropdown() {
   const cities = getRecentCities();
   
@@ -83,11 +118,11 @@ function updateRecentCitiesDropdown() {
   recentCitiesDropdown.classList.remove('hidden');
 }
 
-// Save a city to recent searches
+// Save a city to recent searches USING THE FUNCTION saveCityToRecent
 function saveCityToRecent(city) {
   let cities = getRecentCities();
   
-  // Remove if already exists (to avoid duplicates)
+  // (to avoid duplicates WE WILL REMOVE THE CITIES)
   cities = cities.filter(c => c.toLowerCase() !== city.toLowerCase());
   
   // Add to the beginning of the array
@@ -98,7 +133,7 @@ function saveCityToRecent(city) {
     cities = cities.slice(0, 5);
   }
   
-  // Save to local storage
+  // Save to local storage ( We can use MongoDB or SQL lite too mam/sir but we avoid it because the project is simple.)
   localStorage.setItem('recentCities', JSON.stringify(cities));
   
   // Update the dropdown
@@ -117,7 +152,7 @@ function updateDate() {
   currentDate.textContent = new Date().toLocaleDateString('en-US', options);
 }
 
-// Handle search button click
+// Handle search button click using the function handleSearch THAT TASKES THE LOCATION FROM THE USER AND CALLS THE FUNCTION fetchWeather
 function handleSearch() {
   const location = searchInput.value.trim();
   if (location) {
@@ -126,7 +161,7 @@ function handleSearch() {
   }
 }
 
-// Get weather for a city
+// Get weather for a city USING THE FUNCTION fetchWeather THAT TAKES THE LOCATION FROM THE USER AND CALLS THE FUNCTION
 async function fetchWeather(city) {
   try {
     // Show loading state
@@ -152,10 +187,16 @@ async function fetchWeather(city) {
 
 // Update the UI with current weather data
 function updateCurrentWeather(data) {
+  // Save current weather data for unit conversion
+  currentWeatherData = data;
+  
+  // Update location and description
   cityName.textContent = `${data.name}, ${data.sys.country}`;
-  temperature.textContent = Math.round(data.main.temp);
   weatherDesc.textContent = data.weather[0].description;
   weatherImg.src = `https://openweathermap.org/img/wn/${data.weather[0].icon}@2x.png`;
+  
+  // Update temperature based on current unit
+  updateTemperatureDisplay();
   
   // Update weather details
   windSpeed.textContent = `${Math.round(data.wind.speed * 3.6)} km/h`;
@@ -164,6 +205,9 @@ function updateCurrentWeather(data) {
   
   // Update search input
   searchInput.value = data.name;
+  
+  // Add to recent searches
+  saveCityToRecent(data.name);
 }
 
 // Show 5-day forecast
@@ -202,7 +246,7 @@ function showForecast(data) {
   });
 }
 
-// Get weather for current location
+// Get weather for current location ..
 function getCurrentLocationWeather() {
   if (!navigator.geolocation) {
     alert("Your browser doesn't support geolocation. Please enter a city name.");
@@ -236,5 +280,84 @@ function getCurrentLocationWeather() {
   );
 }
 
-// Start the app when the page loads
-document.addEventListener('DOMContentLoaded', init);
+// Temperature conversion functions
+function celsiusToFahrenheit(c) {
+  return (c * 9/5) + 32;
+}
+
+function celsiusToKelvin(c) {
+  return c + 273.15;
+}
+
+// Update temperature display based on current unit
+function updateTemperatureDisplay() {
+  if (!currentWeatherData) return;
+  
+  let temp = currentWeatherData.main.temp;
+  let feelsLike = currentWeatherData.main.feels_like;
+  
+  switch(currentUnit) {
+    case 'fahrenheit':
+      temp = celsiusToFahrenheit(temp);
+      feelsLike = celsiusToFahrenheit(feelsLike);
+      temperature.textContent = `${Math.round(temp)}°F`;
+      break;
+    case 'kelvin':
+      temp = celsiusToKelvin(temp);
+      feelsLike = celsiusToKelvin(feelsLike);
+      temperature.textContent = `${Math.round(temp)}K`;
+      break;
+    default: // celsius
+      temperature.textContent = `${Math.round(temp)}°C`;
+  }
+}
+
+// Set temperature unit and update display
+function setTemperatureUnit(unit) {
+  if (unit === currentUnit) return;
+  
+  currentUnit = unit;
+  updateUnitButtons();
+  
+  if (currentWeatherData) {
+    updateTemperatureDisplay();
+  }
+  
+  // Save preference to localStorage
+  localStorage.setItem('temperatureUnit', unit);
+}
+
+// Update unit toggle buttons
+function updateUnitButtons() {
+  // Remove all active classes
+  unitCelsius.classList.remove('bg-blue-600', 'text-white');
+  unitFahrenheit.classList.remove('bg-blue-600', 'text-white');
+  unitKelvin.classList.remove('bg-blue-600', 'text-white');
+  
+  // Add active class to current unit
+  switch(currentUnit) {
+    case 'fahrenheit':
+      unitFahrenheit.classList.add('bg-blue-600', 'text-white');
+      break;
+    case 'kelvin':
+      unitKelvin.classList.add('bg-blue-600', 'text-white');
+      break;
+    default: // celsius
+      unitCelsius.classList.add('bg-blue-600', 'text-white');
+  }
+}
+
+// Load saved temperature unit preference
+function loadTemperaturePreference() {
+  const savedUnit = localStorage.getItem('temperatureUnit');
+  if (savedUnit && ['celsius', 'fahrenheit', 'kelvin'].includes(savedUnit)) {
+    currentUnit = savedUnit;
+    updateUnitButtons();
+  }
+}
+
+// Initialize the app when the page loads
+document.addEventListener('DOMContentLoaded', () => {
+  loadTemperaturePreference();
+  init();
+});
