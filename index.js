@@ -263,7 +263,7 @@ function showForecast(data) {
     }
   });
   
-  // If we don't have enough noon forecasts, get the first available for each day
+  //  we get first  forecast available for each day
   if (dailyForecast.length < 5) {
     const addedDates = new Set();
     data.list.forEach(item => {
@@ -334,25 +334,21 @@ function getCurrentLocationWeather() {
 }
 
 
-// Update temperature display based on current unit of data
 function updateTemperatureDisplay() {
   if (!currentWeatherData) return;
   
   let temp = currentWeatherData.main.temp;
-  let feelsLike = currentWeatherData.main.feels_like;
   
   switch(currentUnit) {
     case 'fahrenheit':
       temp = celsiusToFahrenheit(temp);
-      feelsLike = celsiusToFahrenheit(feelsLike);
       temperature.textContent = `${Math.round(temp)}°F`;
       break;
     case 'kelvin':
       temp = celsiusToKelvin(temp);
-      feelsLike = celsiusToKelvin(feelsLike);
       temperature.textContent = `${Math.round(temp)}K`;
       break;
-    default: // celsius
+    default: 
       temperature.textContent = `${Math.round(temp)}°C`;
   }
 }
@@ -401,8 +397,6 @@ function loadTemperaturePreference() {
   }
 }
 
-// Initialize the app when the page loads
 document.addEventListener('DOMContentLoaded', () => {
-  loadTemperaturePreference();
   init();
 });
