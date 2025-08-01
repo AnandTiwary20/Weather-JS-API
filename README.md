@@ -1,5 +1,5 @@
 
-**Live Deployment Server Link - weather-js-ag436546s-anand-tiwaris-projects-01ce88a9.vercel.app
+** Live Deployment Server Link - weather-js-ag436546s-anand-tiwaris-projects-01ce88a9.vercel.app
 
 
 # Weather Forecast App
