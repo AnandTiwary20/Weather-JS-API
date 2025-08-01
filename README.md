@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 # Weather Forecast App
 
 A clean, responsive weather application that displays current weather conditions and a 5-day forecast for any location. Built with vanilla JavaScript and Tailwind CSS.
@@ -24,7 +23,9 @@ A clean, responsive weather application that displays current weather conditions
 - CSS3 (with Tailwind CSS)
 - JavaScript (ES6+)
 
-=======
-# Weather-JS-API
-A weather data fetching Project based on my knowledge of JavaScript Asynchronous Programming ( Use of await )
->>>>>>> 45633bf806446454887240206316ca75b4380eb4
+Github Profile Link - https://github.com/AnandTiwary20
+
+Github Project Link -https://github.com/AnandTiwary20/Weather-JS-API
+
+Live Deployment Server Link - weather-js-ag436546s-anand-tiwaris-projects-01ce88a9.vercel.app
+
