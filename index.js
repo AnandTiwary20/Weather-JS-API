@@ -133,9 +133,9 @@ function updateRecentCitiesDropdown() {
     recentCitiesList.appendChild(cityElement);
   });
   
-  // Position the dropdown below the input
+  // Position the dropdown below the search input
   const inputRect = searchInput.getBoundingClientRect();
-  recentCitiesDropdown.style.width = `${inputRect.width}px`;
+  recentCitiesDropdown.style.width = `${inputRect.width + 120}px`; // Add width for buttons
   recentCitiesDropdown.style.top = `${inputRect.bottom + window.scrollY}px`;
   recentCitiesDropdown.style.left = `${inputRect.left + window.scrollX}px`;
   
@@ -257,28 +257,45 @@ function showForecast(data) {
   
   data.list.forEach(item => {
     const date = new Date(item.dt * 1000);
+    // Get forecast for noon each day
     if (date.toDateString() !== today && date.getHours() === 12 && dailyForecast.length < 5) {
       dailyForecast.push(item);
     }
   });
   
-  // Create forecast cards
+  // If we don't have enough noon forecasts, get the first available for each day
+  if (dailyForecast.length < 5) {
+    const addedDates = new Set();
+    data.list.forEach(item => {
+      const date = new Date(item.dt * 1000);
+      const dateStr = date.toDateString();
+      
+      if (dateStr !== today && !addedDates.has(dateStr) && dailyForecast.length < 5) {
+        dailyForecast.push(item);
+        addedDates.add(dateStr);
+      }
+    });
+  }
+  
+  // Create forecast items
   dailyForecast.forEach(day => {
     const date = new Date(day.dt * 1000);
-    const dayName = date.toLocaleDateString('en-US', { weekday: 'short' });
+    const dayName = date.toLocaleDateString('en-US', { weekday: 'long' });
     const temp = Math.round(day.main.temp);
     const icon = day.weather[0].icon;
+    const description = day.weather[0].description;
     
-    const card = `
-      <div class="bg-white p-4 rounded-xl shadow text-center">
-        <p class="font-medium">${dayName}</p>
-        <img src="https://openweathermap.org/img/wn/${icon}@2x.png" alt="weather" class="mx-auto w-16 h-16">
-        <p class="text-2xl font-bold">${temp}°</p>
-        <p class="text-sm text-gray-500">${day.weather[0].description}</p>
+    const forecastItem = document.createElement('div');
+    forecastItem.className = 'forecast-item flex items-center justify-between p-4 bg-gray-800 rounded-lg transition-all duration-200 hover:bg-gray-700';
+    forecastItem.innerHTML = `
+      <span class="font-medium text-gray-100">${dayName}</span>
+      <div class="flex items-center">
+        <img src="https://openweathermap.org/img/wn/${icon}.png" alt="${description}" class="w-10 h-10">
+        <span class="ml-3 font-medium text-white text-lg">${temp}°</span>
       </div>
     `;
     
-    forecastList.insertAdjacentHTML('beforeend', card);
+    forecastList.appendChild(forecastItem);
   });
 }
 
@@ -317,7 +334,7 @@ function getCurrentLocationWeather() {
 }
 
 
-// Update temperature display based on current unit
+// Update temperature display based on current unit of data
 function updateTemperatureDisplay() {
   if (!currentWeatherData) return;
   

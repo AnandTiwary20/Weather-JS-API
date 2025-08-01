@@ -72,68 +72,72 @@
                     <button id="unit-celsius" class="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-l-lg hover:bg-blue-700 focus:z-10 focus:ring-2 focus:ring-blue-500">
                         °C
                     </button>
-                    <button id="unit-fahrenheit" class="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-l-lg hover:bg-blue-700 focus:z-10 focus:ring-2 focus:ring-blue-500">
+                    <button id="unit-fahrenheit" class="px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:z-10 focus:ring-2 focus:ring-blue-500">
                         °F
                     </button>
-                    <button id="unit-kelvin" class="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-l-lg hover:bg-blue-700 focus:z-10 focus:ring-2 focus:ring-blue-500">
+                    <button id="unit-kelvin" class="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-r-lg hover:bg-blue-700 focus:z-10 focus:ring-2 focus:ring-blue-500">
                         K
                     </button>
                 </div>
             </div>
 
-            <!-- Current Weather -->
-            <section class="current-weather">
-                <div class="weather-card rounded-xl shadow-xl p-6 max-w-2xl mx-auto">
-                    <div class="location text-center mb-6">
-                        <h2 id="city" class="text-3xl font-bold text-gray-800">--</h2>
-                        <p id="date" class="text-gray-600">-- --, ----</p>
-                    </div>
-                    <div class="weather-main flex flex-col md:flex-row items-center justify-between mb-6">
-                        <div class="temperature flex items-center mb-4 md:mb-0">
-                            <span id="temp" class="text-6xl font-bold text-gray-800">--</span>
-                            <span class="unit text-2xl text-gray-600 ml-1">°C</span>
+            <div class="flex flex-col lg:flex-row gap-8">
+                <!-- Current Weather -->
+                <section class="current-weather flex-1">
+                    <div class="weather-card rounded-xl shadow-xl p-6 w-full">
+                        <div class="location text-center mb-6">
+                            <h2 id="city" class="text-3xl font-bold text-gray-800">--</h2>
+                            <p id="date" class="text-gray-600">-- --, ----</p>
                         </div>
-                        <div class="weather-icon flex flex-col items-center">
-                            <img id="weather-icon" 
-                                 src="https://openweathermap.org/img/wn/01d@2x.png" 
-                                 alt="weather icon" 
-                                 class="w-24 h-24">
-                            <p id="description" class="text-lg text-gray-700 capitalize">--</p>
-                        </div>
-                    </div>
-                    <div class="weather-details grid grid-cols-1 sm:grid-cols-3 gap-4 mt-6">
-                        <div class="detail flex items-center p-3 bg-blue-50 rounded-lg">
-                            <i class="fas fa-wind text-blue-600 text-2xl mr-3"></i>
-                            <div>
-                                <p class="text-sm text-gray-500">Wind</p>
-                                <p id="wind" class="font-medium">-- km/h</p>
+                        <div class="weather-main flex flex-col md:flex-row items-center justify-between mb-6">
+                            <div class="temperature flex items-center mb-4 md:mb-0">
+                                <span id="temp" class="text-6xl font-bold text-gray-800">--</span>
+                                <span class="unit text-2xl text-gray-600 ml-1">°C</span>
+                            </div>
+                            <div class="weather-icon flex flex-col items-center">
+                                <img id="weather-icon" 
+                                     src="https://openweathermap.org/img/wn/01d@2x.png" 
+                                     alt="weather icon" 
+                                     class="w-24 h-24">
+                                <p id="description" class="text-lg text-gray-700 capitalize">--</p>
                             </div>
                         </div>
-                        <div class="detail flex items-center p-3 bg-blue-50 rounded-lg">
-                            <i class="fas fa-tint text-blue-600 text-2xl mr-3"></i>
-                            <div>
-                                <p class="text-sm text-gray-500">Humidity</p>
-                                <p id="humidity" class="font-medium">--%</p>
+                        <div class="weather-details grid grid-cols-1 sm:grid-cols-3 gap-4 mt-6">
+                            <div class="detail flex items-center p-3 bg-blue-50 rounded-lg">
+                                <i class="fas fa-wind text-blue-600 text-2xl mr-3"></i>
+                                <div>
+                                    <p class="text-sm text-gray-500">Wind</p>
+                                    <p id="wind" class="font-medium">-- km/h</p>
+                                </div>
                             </div>
-                        </div>
-                        <div class="detail flex items-center p-3 bg-blue-50 rounded-lg">
-                            <i class="fas fa-compress-alt text-blue-600 text-2xl mr-3"></i>
-                            <div>
-                                <p class="text-sm text-gray-500">Pressure</p>
-                                <p id="pressure" class="font-medium">-- hPa</p>
+                            <div class="detail flex items-center p-3 bg-blue-50 rounded-lg">
+                                <i class="fas fa-tint text-blue-600 text-2xl mr-3"></i>
+                                <div>
+                                    <p class="text-sm text-gray-500">Humidity</p>
+                                    <p id="humidity" class="font-medium">--%</p>
+                                </div>
+                            </div>
+                            <div class="detail flex items-center p-3 bg-blue-50 rounded-lg">
+                                <i class="fas fa-compress-alt text-blue-600 text-2xl mr-3"></i>
+                                <div>
+                                    <p class="text-sm text-gray-500">Pressure</p>
+                                    <p id="pressure" class="font-medium">-- hPa</p>
+                                </div>
                             </div>
                         </div>
                     </div>
-                </div>
-            </section>
+                </section>
 
-            <!-- 5-Day Forecast -->
-            <section class="forecast">
-                <h3 class="text-2xl font-semibold text-gray-800 mb-4 text-center">5-Day Forecast</h3>
-                <div class="forecast-container grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4" id="forecast">
-                    <!-- Forecast cards will be inserted here by JavaScript -->
-                </div>
-            </section>
+                <!-- 5-Day Forecast -->
+                <section class="forecast lg:w-1/2 xl:w-2/5">
+                    <div class="weather-card rounded-xl shadow-xl p-6 h-full">
+                        <h3 class="text-2xl font-semibold text-gray-800 mb-6">5-Day Forecast</h3>
+                        <div class="space-y-4" id="forecast">
+                            <!-- Forecast items will be inserted here by JavaScript -->
+                        </div>
+                    </div>
+                </section>
+            </div>
         </main>
 
         <footer class="mt-12 text-center text-gray-500 text-sm">
